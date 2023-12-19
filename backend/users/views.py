@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
-from .forms import SignupForm
+from django.contrib.auth.models import User, auth
+from .forms import SignupForm, LoginForm
 
 # Create your views here.
 def signup(request):
@@ -40,3 +40,32 @@ def signup(request):
         form = SignupForm()
 
     return redirect('base.html')
+
+
+def login(request):
+    """ User log in view. """
+    template = 'login.html'
+
+    form = LoginForm()
+
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = auth.authenticate(request, username=username, password=password)
+
+            if user is not None:
+                auth.login(request, user)
+                return redirect('/')
+            else:
+                form.add_error(None, 'Invalid username or password. Please use the correct credentials and try again.')
+    else:
+        form= LoginForm()
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, template, context)
+
