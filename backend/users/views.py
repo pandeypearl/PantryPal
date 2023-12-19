@@ -44,7 +44,7 @@ def signup(request):
 
 def login(request):
     """ User log in view. """
-    template = 'login.html'
+    template = 'base.html'
 
     form = LoginForm()
 
@@ -57,7 +57,7 @@ def login(request):
 
             if user is not None:
                 auth.login(request, user)
-                return redirect('/')
+                return redirect('base.html')
             else:
                 form.add_error(None, 'Invalid username or password. Please use the correct credentials and try again.')
     else:
