@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
 from .forms import SignupForm, LoginForm
 
@@ -69,3 +70,9 @@ def login(request):
 
     return render(request, template, context)
 
+
+@login_required(login_url='login')
+def logout(request):
+    """ User log out view. """
+    auth.logout(request)
+    return redirect('login')
