@@ -7,6 +7,10 @@ from django.contrib.auth.models import User, auth
 from .forms import SignupForm, LoginForm
 
 # Create your views here.
+
+def home(request):
+    return render(request, 'base.html')
+
 def signup(request):
     """ User sign up view """
     form = SignupForm()
