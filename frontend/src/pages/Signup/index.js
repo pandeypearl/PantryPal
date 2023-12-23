@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/auth.scss';
+import AuthCreators from '../../components/AuthCreators';
 
 const SignUp = () => {
     const [username, setUsername] = useState('');
@@ -47,59 +48,62 @@ const SignUp = () => {
     };
 
     return (
-        <div className='wrapper'>
-            <div className='auth-container'>
-                <h2>Sign Up </h2>
-                <hr />
-                
-                <form>
-                    <div>
-                        <label>Username</label>
-                        <input 
-                            type='text' 
-                            value={username} 
-                            onChange={(e) => setUsername(e.target.value)} 
-                            placeholder='unique username'
-                        />
-                    </div>
+        <>
+            <div className='wrapper'>
+                <div className='auth-container'>
+                    <h2>Sign Up </h2>
+                    <hr />
                     
-                    <div>
-                        <label>Email</label>
-                        <input type='email'
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder='example@email.com'
-                        />
-                    </div>
-                    
-                    <div>
-                        <label>Password</label>
-                        <input 
-                            type='password' 
-                            value={password} onChange={(e) => setPassword(e.target.value)}
-                            placeholder='choose a secure password'
-                        />    
-                    </div>
-                    
-                    <div>
-                        <label>Password Confirm</label>
-                        <input 
-                            type='text' 
-                            value={password2} onChange={(e) => setPassword2(e.target.value)}
-                            placeholder='confirm password'
-                        />
-                    </div>
-                    
-                    <button type='button' onClick={handleSignup} disabled={loading}>
-                       {loading ? 'Signing up...': 'Sign up'} 
-                    </button>
-                    {success && <p>Sign up successful! Redirecting...</p>}
-                    {error && <p style={{ color: 'red'}}>{error}</p>}
-                </form>
-                <p><small>Already have an account? <Link to='/login' className='auth-link'>Log in</Link>.</small></p>
-            </div>
+                    <form>
+                        <div>
+                            <label>Username</label>
+                            <input 
+                                type='text' 
+                                value={username} 
+                                onChange={(e) => setUsername(e.target.value)} 
+                                placeholder='unique username'
+                            />
+                        </div>
+                        
+                        <div>
+                            <label>Email</label>
+                            <input type='email'
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder='example@email.com'
+                            />
+                        </div>
+                        
+                        <div>
+                            <label>Password</label>
+                            <input 
+                                type='password' 
+                                value={password} onChange={(e) => setPassword(e.target.value)}
+                                placeholder='choose a secure password'
+                            />    
+                        </div>
+                        
+                        <div>
+                            <label>Password Confirm</label>
+                            <input 
+                                type='text' 
+                                value={password2} onChange={(e) => setPassword2(e.target.value)}
+                                placeholder='confirm password'
+                            />
+                        </div>
+                        
+                        <button type='button' onClick={handleSignup} disabled={loading}>
+                        {loading ? 'Signing up...': 'Sign up'} 
+                        </button>
+                        {success && <p>Sign up successful! Redirecting...</p>}
+                        {error && <p style={{ color: 'red'}}>{error}</p>}
+                    </form>
+                    <p><small>Already have an account? <Link to='/login' className='auth-link'>Log in</Link>.</small></p>
+                </div>
 
-        </div>
+            </div>
+            <AuthCreators />
+        </>
     );
 
 }
