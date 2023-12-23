@@ -48,10 +48,10 @@ const SignUp = () => {
 
     return (
         <div className='wrapper'>
-            <div className='container'>
+            <div className='auth-container'>
                 <h2>Sign Up </h2>
                 <hr />
-                <p>Already have an account? <Link to='/login' className='auth-link'>Log in</Link>.</p>
+                
                 <form>
                     <div>
                         <label>Username</label>
@@ -96,6 +96,7 @@ const SignUp = () => {
                     {success && <p>Sign up successful! Redirecting...</p>}
                     {error && <p style={{ color: 'red'}}>{error}</p>}
                 </form>
+                <p><small>Already have an account? <Link to='/login' className='auth-link'>Log in</Link>.</small></p>
             </div>
 
         </div>
