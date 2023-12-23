@@ -1,0 +1,30 @@
+@import '../../styles/colours';
+@import '../../styles/shadows';
+
+.wrapper{
+    margin-top: 0!important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
+    .container{
+        h1{
+            font-size: 3rem;
+            text-align: center;
+        }
+
+        form{
+            input{
+                width: 400px;
+                background: $mintGreen-color;
+                border: none;
+                padding: 12px 18px;
+                outline: none;
+                border-radius: 20px;
+                font-size: 1rem;
+                box-shadow: $shadow-light;
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+@import './styles/colours.scss'; 
+
+html, body{
+    background-color: $pistachio-color;
+    color: $black-color;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+ul{
+    list-style-type: none;
+    padding-left: 0;
+}
+
+a {
+ text-decoration: none;
+ color: inherit;
+}
+
+button{
+    cursor: pointer;
+}

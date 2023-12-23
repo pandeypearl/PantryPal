@@ -1,0 +1,36 @@
+@import '../../styles/colours';
+@import '../../styles/shadows';
+
+.top-nav{
+    height: 80px;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    position:absolute;
+    top: 0;
+    left: 0;
+    right: 300px;
+    padding: 0 50px;
+
+    .logo{
+        font-weight: 900;
+        font-size: 1.5rem;
+    }
+
+    nav{
+        display: flex;
+        gap: 20px;
+
+        .auth-btn{
+            font-weight: 600;
+            background: $mintGreen-color;
+            padding: 8px 18px;
+            border-radius: 20px;
+            box-shadow: $shadow-light;
+
+            &:hover{
+                background: darken($mintGreen-color, 5%);
+            }
+        }
+    } 
+}
