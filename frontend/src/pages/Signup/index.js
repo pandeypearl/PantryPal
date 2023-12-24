@@ -1,50 +1,36 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm, Controller } from 'react-hook-form';
 import '../../styles/auth.scss';
 import AuthCreators from '../../components/AuthCreators';
 
 const SignUp = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [password2, setPassword2] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError]= useState(null);
-    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const { handleSubmit, control, formState: {errors} } = useForm();
 
-    const handleSignup = async () => {
+    const onSubmit = async (data) => {
         try {
-            setLoading(true);
             const response = await fetch('https://locahost:8000/signup/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    username,
-                    email,
-                    password,
-                    password2,
-                }),
+                body: JSON.stringify(data),
             });
 
-            const data = await response.json();
+            const responseData = await response.json();
 
-            if (data.success) {
-                setSuccess(true);
-                setError(null);
+            if (responseData.success) {
                 navigate.push('/profile')
             } else {
-                setSuccess(false);
-                setError(data.error || 'Sign up failed');
+                console.error('Error during signup:', responseData.errors);
+                Object.keys(responseData.errors).forEach((field) => {
+                    const error = { message: responseData.errors[field] };
+                    errors[field] = error;
+                });
             }
         } catch (error) {
             console.error('Error during sign up:', error)
-            setError('Network error')
-        } finally {
-            setLoading(false);
-        }
+        } 
     };
 
     return (
@@ -54,49 +40,53 @@ const SignUp = () => {
                     <h2>Sign Up </h2>
                     <hr />
                     
-                    <form>
+                    <form onSubmit={handleSubmit(onSubmit)}> 
                         <div>
                             <label>Username</label>
-                            <input 
-                                type='text' 
-                                value={username} 
-                                onChange={(e) => setUsername(e.target.value)} 
-                                placeholder='unique username'
+                            <Controller 
+                                name='username'
+                                control={control}
+                                defaultValue=''
+                                render={({ field }) => <input {...field} placeholder='unique username' />} 
                             />
+                            {errors.username && <div style={{ color: 'red' }}>{errors.username.message}</div>}
                         </div>
                         
                         <div>
                             <label>Email</label>
-                            <input type='email'
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder='example@email.com'
+                            <Controller
+                                name='email'
+                                control={control}
+                                defaultValue=''
+                                render={({ field }) => <input {...field} type='email' placeholder='example@email.com' />}
                             />
+                            {errors.email && <div style={{ color: 'red'}}>{errors.email.message}</div>}
                         </div>
                         
                         <div>
                             <label>Password</label>
-                            <input 
-                                type='password' 
-                                value={password} onChange={(e) => setPassword(e.target.value)}
-                                placeholder='choose a secure password'
-                            />    
+                            <Controller 
+                                name='password' 
+                                control={control}
+                                defaultValue=''
+                                render={({ field }) => <input {...field} type='password' placeholder='secure password' />}
+                            />
+                            {errors.password && <div style={{ color: 'red' }}>{errors.password.message}</div>}
                         </div>
                         
                         <div>
                             <label>Password Confirm</label>
-                            <input 
-                                type='text' 
-                                value={password2} onChange={(e) => setPassword2(e.target.value)}
-                                placeholder='confirm password'
+                            <Controller
+                                name='password2'
+                                control={control}
+                                defaultValue=''
+                                render={({ field }) => <input {...field} type='password' placeholder='confirm password' />}
                             />
+                            {errors.password2 && <div style={{ color: 'red' }}>{errors.password2.message}</div>}
                         </div>
                         
-                        <button type='button' onClick={handleSignup} disabled={loading}>
-                        {loading ? 'Signing up...': 'Sign up'} 
-                        </button>
-                        {success && <p>Sign up successful! Redirecting...</p>}
-                        {error && <p style={{ color: 'red'}}>{error}</p>}
+                        <button type='button'>Sign up</button>
+
                     </form>
                     <p><small>Already have an account? <Link to='/login' className='auth-link'>Log in</Link>.</small></p>
                 </div>
