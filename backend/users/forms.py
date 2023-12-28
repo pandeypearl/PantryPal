@@ -1,5 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+from .models import UserProfile
 
 
 class SignupForm(forms.Form):
@@ -32,3 +36,47 @@ class LoginForm:
     """ User log in form. """
     username = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={'placeholder': 'USername'})),
     password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}), required=True)
+
+
+class UserProfileForm:
+    """ User Create/Edit Profile form """
+    class Meta:
+        model = UserProfile
+        fields = [
+            'full_name',
+            'bio',
+            'date_of_birth',
+            'location',
+            'profile_pic',
+            'url',
+        ]
+
+    def clean_date_of_birth(self):
+        date_of_birth = self.cleaned_data.get('date_of_birth')
+        if date_of_birth and date_of_birth > timezone.now().date():
+            raise forms.ValidationError('Date of birth cannot be in the future')
+        return date_of_birth
+    
+    def clean_date_of_birth(self):
+        url = self.cleaned_data.get('url')
+        if url and not url.startswith('http://') and not url.startswith('https://'):
+            raise forms.ValidationError('Please enter a valid URL with http:// or https:// .')
+        return url
+
+    def clean_full_name(self):
+        full_name = self.cleaned_data.get('full_name')
+        if len(full_name) > 255:
+            raise forms.ValidationError('Full name must be at most 255 characters.')
+        return full_name
+    
+    def clean_location(self):
+        location = self.cleaned_data.get('location')
+        if len(location) > 255:
+            raise forms.ValidationError('Location must be at most 255 characters.')
+        return location
+
+    def clean_bio(self):
+        bio = self.cleaned_data.get('bio')
+        if len(bio) > 500:
+            raise forms.ValidationError('Bio must me at most 500 characters.')
+        return bio
