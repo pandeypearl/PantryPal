@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
-from .forms import SignupForm, LoginForm
+
+from .forms import SignupForm, LoginForm, UserProfileForm
 from .models import UserProfile, Follow 
 
 # Create your views here.
@@ -49,13 +50,11 @@ def signup(request):
     else:
         form = SignupForm()
 
-    return redirect('base.html')
+    return JsonResponse({'error': 'Invalid request method.'})
 
 
 def login(request):
     """ User log in view. """
-    template = 'base.html'
-
     form = LoginForm()
 
     if request.method == 'POST':
@@ -67,21 +66,77 @@ def login(request):
 
             if user is not None:
                 auth.login(request, user)
-                return redirect('base.html')
+                return JsonResponse({'success': True, 'message': 'Login successful.'})
             else:
-                form.add_error(None, 'Invalid username or password. Please use the correct credentials and try again.')
+                return JsonResponse({'error': 'Invalid username or password'})
+        else:
+            return JsonResponse({'error': 'Form validation failed. Please try again.', 'form_errors': form.errors})
     else:
-        form= LoginForm()
-
-    context = {
-        'form': form,
-    }
-
-    return render(request, template, context)
+        return JsonResponse({'error': 'Invalid request method.'})
 
 
 @login_required(login_url='login')
 def logout(request):
     """ User log out view. """
-    auth.logout(request)
-    return redirect('login')
+    if request.method == 'POST':
+        request.user.auth_token.delete()  # Optional: if you're using Token-based authentication
+        auth.logout(request)
+        return JsonResponse({'success': True, 'message': 'Logout successful.'})
+    else:
+        return JsonResponse({'error': 'Invalid request method.'})
+
+
+@login_required(login_url='login')
+def user_profile(request, pk):
+    ''' User profile view. '''
+
+    user_object = get_object_or_404(User, pk=pk)
+    user_profile = UserProfile.objects.get(user=user_object)
+
+    followers = user_object.followers.all()
+    following = user_object.following.all()
+    is_following = Follow.objects.filter(follower=request.user, followed=user_object).exists()
+    follower_count = user_object.followers.count()
+    following_count = user_object.following.count()
+
+    context = {
+        'user_object': user_object,
+        'user_profile': user_profile,
+        'followers': followers,
+        'following': following,
+        'is_following': is_following,
+        'follower_count': follower_count,
+        'following_count': following_count,
+    }
+
+    return JsonResponse(context)
+
+
+@login_required(login_url='login')
+def user_settings(request):
+
+    user = request.user
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    form = UserProfileForm(instance=user_profile)
+
+    context = {
+        'user': user,
+        'user_profile': user_profile,
+        'created': created,
+        'form': form,
+    }
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
+        if form.is_valid():
+            form.save()
+            context.update({
+                'success': True,
+                'message': 'Profile updated successfully.',
+            })
+        else:
+            return context.update({'error':  'Form validation failed. Please try again.'})
+        return JsonResponse(context)
+
+    return JsonResponse(context)
