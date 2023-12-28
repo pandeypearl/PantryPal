@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
 from .forms import SignupForm, LoginForm
+from .models import UserProfile, Follow 
 
 # Create your views here.
 
@@ -37,6 +38,10 @@ def signup(request):
             login(request, user_login)
 
             # Code for creating profile object will go here
+            user_model = User.objects.get(username=username)
+
+            new_user_profile = UserProfile.objects.create(user=user_model)
+            new_user_profile.save()
 
             return JsonResponse({'success': True})
         else:
