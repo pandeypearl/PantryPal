@@ -8,7 +8,7 @@ class UserProfile(models.Model):
     ''' Defines user profile model '''
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=255, null=True, blank=True)
-    bio = models.TextField(null=True, blank=True)
+    bio = models.TextField(max_length=500, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     location = models.CharField(max_length=255,null=True, blank=True)
     profile_pic = models.ImageField(upload_to='profile_pics', default='')
