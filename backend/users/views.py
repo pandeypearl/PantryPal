@@ -114,6 +114,7 @@ def user_profile(request, pk):
 
 @login_required(login_url='login')
 def user_settings(request):
+    ''' User settings view to edit profile info. '''
 
     user = request.user
     user_profile, created = UserProfile.objects.get_or_create(user=request.user)
@@ -138,5 +139,70 @@ def user_settings(request):
         else:
             return context.update({'error':  'Form validation failed. Please try again.'})
         return JsonResponse(context)
+
+    return JsonResponse(context)
+
+
+@login_required(login_url='login')
+def follow(request, pk):
+    ''' Follow another user view. '''
+    if request.method == 'POST':
+        user_to_follow = get_object_or_404(User, pk=pk).userprofile.user
+
+        # Making sure user not trying to follow their own profile
+        if request.user == user_to_follow:
+            return JsonResponse({'error': 'Cannot follow your own profile.'})
+        # Making sure user not  trying to follow a page they are already following
+        if not Follow.objects.filter(follower=request.user, followed=user_to_follow).exists():
+            Follow.objects.create(follower=request.user, followed=user_to_follow)
+            return JsonResponse({'success': True, 'message': 'User followed successfully.'})
+        else:
+            return JsonResponse({'error': 'User is already being followed.'})
+    else:
+        return JsonResponse({'error': 'Invalid request method.'})
+
+
+@login_required(login_url='login')
+def unfollow(request, pk):
+    ''' Unfollow another user view. '''
+    if request.method == 'POST':
+        user_to_unfollow = get_object_or_404(User, pk=pk).userprofile.user
+
+        # Making sure user is a follower before unfollowing
+        follow_instance = Follow.objects.filter(follower=request.user, followed=user_to_unfollow).first()
+        if follow_instance:
+            follow_instance.delete()
+            return JsonResponse({'success': True, 'message': 'User unfollowed successfully.'})
+        else:
+            return JsonResponse({'error': 'User is not being followed.'})
+    else:
+        return JsonResponse({'error': 'Invalid request method.'})
+
+
+
+@login_required(login_url='login')
+def user_followers(request, pk):
+    ''' User followers list view. '''
+    user = get_object_or_404(User, pk=pk)
+    followers = user.followers.all()
+
+    context = {
+        'user': user,
+        'followers': followers,
+    }
+
+    return JsonResponse(context)
+
+
+@login_required(login_url='login')
+def user_following(request, pk):
+    ''' User following list view. '''
+    user = get_object_or_404(User, pk=pk)
+    followers = user.following.all()
+
+    context = {
+        'user': user,
+        'followers': followers,
+    }
 
     return JsonResponse(context)
