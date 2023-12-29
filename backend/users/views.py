@@ -89,27 +89,29 @@ def logout(request):
 @login_required(login_url='login')
 def user_profile(request, pk):
     ''' User profile view. '''
+    if request.method == 'GET':
+        user_object = get_object_or_404(User, pk=pk)
+        user_profile = UserProfile.objects.get(user=user_object)
 
-    user_object = get_object_or_404(User, pk=pk)
-    user_profile = UserProfile.objects.get(user=user_object)
+        followers = user_object.followers.all()
+        following = user_object.following.all()
+        is_following = Follow.objects.filter(follower=request.user, followed=user_object).exists()
+        follower_count = user_object.followers.count()
+        following_count = user_object.following.count()
 
-    followers = user_object.followers.all()
-    following = user_object.following.all()
-    is_following = Follow.objects.filter(follower=request.user, followed=user_object).exists()
-    follower_count = user_object.followers.count()
-    following_count = user_object.following.count()
+        context = {
+            'user_object': user_object,
+            'user_profile': user_profile,
+            'followers': followers,
+            'following': following,
+            'is_following': is_following,
+            'follower_count': follower_count,
+            'following_count': following_count,
+        }
 
-    context = {
-        'user_object': user_object,
-        'user_profile': user_profile,
-        'followers': followers,
-        'following': following,
-        'is_following': is_following,
-        'follower_count': follower_count,
-        'following_count': following_count,
-    }
-
-    return JsonResponse(context)
+        return JsonResponse(context)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
 @login_required(login_url='login')
