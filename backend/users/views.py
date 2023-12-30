@@ -1,9 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
+from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+import json
 
 from .forms import SignupForm, LoginForm, UserProfileForm
 from .models import UserProfile, Follow 
@@ -53,24 +58,23 @@ def signup(request):
     return JsonResponse({'error': 'Invalid request method.'})
 
 
+@ensure_csrf_cookie
+def get_csrf(request):
+    return JsonResponse({'details': 'CSRF cookie set'})
+
+
 def login(request):
     """ User log in view. """
-    form = LoginForm()
-
     if request.method == 'POST':
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = auth.authenticate(request, username=username, password=password)
-
-            if user is not None:
-                auth.login(request, user)
-                return JsonResponse({'success': True, 'message': 'Login successful.'})
-            else:
-                return JsonResponse({'error': 'Invalid username or password'})
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'success': True, 'user': {'username': user.username}})
         else:
-            return JsonResponse({'error': 'Form validation failed. Please try again.', 'form_errors': form.errors})
+            return JsonResponse({'success': False, 'error': 'Invalid credentials'})
     else:
         return JsonResponse({'error': 'Invalid request method.'})
 
@@ -86,7 +90,7 @@ def logout(request):
         return JsonResponse({'error': 'Invalid request method.'})
 
 
-@login_required(login_url='login')
+# @login_required(login_url='login')
 def user_profile(request, pk):
     ''' User profile view. '''
     if request.method == 'GET':

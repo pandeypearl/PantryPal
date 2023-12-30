@@ -23,6 +23,7 @@ function App() {
             path='/login' 
             element={<LogIn onLogin={() => setIsAuthenticated(true)} />} 
           />
+          {/* <Route path='/user-profile/:pk' element={<UserProfile />} /> */}
           <Route path='/user-profile/:pk' element={<PrivateRoute isAuthenticated={isAuthenticated}><UserProfile /></PrivateRoute>} />
         </Route>
       </Routes>

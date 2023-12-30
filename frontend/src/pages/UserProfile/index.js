@@ -10,7 +10,7 @@ const UserProfilePage = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/user_profile/${pk}/`, {
+                const response = await fetch(`http://localhost:8000/user_profile/${pk}`, {
                     credentials: 'include',  // Include credentials (e.g., cookies) in the request
                 });
 
