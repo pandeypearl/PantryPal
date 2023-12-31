@@ -21,7 +21,7 @@ const SideNav = () => {
                 <NavLink
                     exact='true'
                     activeClassName='active'
-                    to='/user-profile/:pk'>
+                    to='/user-profile'>
                     <FontAwesomeIcon icon={faUser} className='nav-icon' />
                 </NavLink>
                 <NavLink

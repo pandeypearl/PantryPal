@@ -1,58 +1,61 @@
+import AuthContext from '../../context/AuthContext';
 import './index.scss';
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
 
 
 const UserProfilePage = () => {
-    const { pk } = useParams();
-    const [userData, setUserData] = useState(null);
+    const [profile, setProfile] = useState([]);
+    const {authTokens, logoutUser} = useContext(AuthContext);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch(`http://localhost:8000/user_profile/${pk}`, {
-                    credentials: 'include',  // Include credentials (e.g., cookies) in the request
-                });
+        getProfile();
+    }, []);
 
-                if (response.status === 401) {
-                    // Handle unauthorized access (user not logged in)
-                    console.log('User not logged in');
-                    return;
-                }
-
-                const data = await response.json();
-                console.log(data);
-                setUserData(data);
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
+    const getProfile = async () => {
+        const response = await fetch('http://127.0.0.1:8000/api/user_profiles/', {
+            method: 'GET',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': 'Bearer' + String(authTokens.access)
             }
-        };
+        });
+        
+        const data = await response.json();
+        console.log(data);
 
-        fetchData();
-    }, [pk]);
+        if (response.status === 200) {
+            setProfile(data);
+        } else if (response.statusText === 'Unauthorized') {
+            logoutUser();
+        }
+        
+    };
 
-    if (!userData) {
+    if (loading) {
         return <p>Loading...</p>;
     }
-
-    const {
-        user_object,
-        user_profile,
-        followers,
-        following,
-        is_following,
-        follower_count,
-        following_count,
-    } = userData;
-
+    
+    if (!profile) {
+        return <p>Error loading profile data</p>;
+    }
+    
     return (
-        <div>
-            <h1>User Profile: </h1>
-            {/* Render other user profile information as needed */}
-            <p>Followers: {follower_count}</p>
-            <p>Following: {following_count}</p>
-            {/* Render other user-related data as needed */}
-        </div>
+        <>
+            {profile && (
+                <div>
+                    <h1>User Profile: </h1>
+                    <img src={profile.profile_pic} alt={profile.user.username} />
+                    <p>Full Name: {profile.full_name}</p>
+                    <p>Username: {profile.user.username}</p>
+                    <p>Location: {profile.location}</p>
+                    <p>Bio: {profile.bio}</p>
+                    <p>Date of Birth: {profile.date_of_birth}</p>
+                    <p>Url: {profile.url}</p>
+                </div>
+            )};
+        </>    
+        
     )
 };
 
