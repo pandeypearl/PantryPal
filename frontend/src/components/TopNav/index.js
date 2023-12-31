@@ -14,14 +14,16 @@ const TopNav = () => {
             {user && <span >{user.username}</span>}
             
             {user ? (
-                <span onClick={logoutUser}>Log out</span>
+                <nav>
+                    <button onClick={logoutUser} className='auth-btn'>log out</button>
+                </nav>
             ): (
-                <span>Login</span>
+                <nav>
+                    {!isAuthPage && <NavLink to='/signup' className='auth-btn'>sign up</NavLink>}
+                    {!isAuthPage && <NavLink to='/login' className='auth-btn'>log in</NavLink>}
+                </nav>
             )}
-            <nav>
-                {!isAuthPage && <NavLink to='/signup' className='auth-btn'>sign up</NavLink>}
-                {!isAuthPage && <NavLink to='/login' className='auth-btn'>log in</NavLink>}
-            </nav>
+            
         </div>
     )
 }

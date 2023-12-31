@@ -27,6 +27,9 @@
             padding: 8px 18px;
             border-radius: 20px;
             box-shadow: $shadow-light;
+            border: none;
+            font-family: inherit;
+            font-size: 1rem;
 
             &:hover{
                 background: darken($mintGreen-color, 5%);
